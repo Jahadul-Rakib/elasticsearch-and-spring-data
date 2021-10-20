@@ -7,9 +7,6 @@ import com.database_example.repository.StudentRepository;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
@@ -21,6 +18,8 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 
 @Service
 public class StudentServiceImpl implements StudentService {
@@ -48,8 +47,8 @@ public class StudentServiceImpl implements StudentService {
     public List<Student> getStudents(String sName, int age) {
         BoolQueryBuilder boolQueryBuilder = QueryBuilders
                 .boolQuery()
-                .must(QueryBuilders.matchQuery("studentName", sName))
-                .must(QueryBuilders.matchQuery("age", age));
+                .must(matchQuery("studentName", sName))
+                .must(matchQuery("age", age));
         NativeSearchQuery nativeSearchQuery = new NativeSearchQueryBuilder().withQuery(boolQueryBuilder).build();
         SearchHits<Student> searchHits = elasticsearchTemplate.search(nativeSearchQuery, Student.class);
         return searchHits.getSearchHits().stream().map(SearchHit::getContent).collect(Collectors.toList());
@@ -69,6 +68,7 @@ public class StudentServiceImpl implements StudentService {
     public List<Student> multiQuerySearch(String text) {
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.multiMatchQuery(text)
+                        .minimumShouldMatch("25%")
                         .field("studentName")
                         .field("departmentName")
                         .type(MultiMatchQueryBuilder.Type.BEST_FIELDS))

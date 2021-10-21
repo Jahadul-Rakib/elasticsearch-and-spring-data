@@ -9,7 +9,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-import java.time.Instant;
+import java.util.Date;
 
 @Data
 @Builder
@@ -18,14 +18,14 @@ import java.time.Instant;
 @Document(indexName = "student")
 public class Student {
     @Id
-    @Field(type = FieldType.Keyword, value = "studentID")
+    @Field(type = FieldType.Auto, value = "studentID")
     private String studentID;
     @Field(type = FieldType.Text, value = "studentName")
     private String studentName;
-    @Field(type = FieldType.Text, value = "departmentName")
+    @Field(type = FieldType.Keyword, value = "departmentName")
     private String departmentName;
     @Field(type = FieldType.Integer, value = "age")
     private int age;
     @Field(type = FieldType.Date, value = "dateOfBirth")
-    private Instant dateOfBirth;
+    private Date dateOfBirth;
 }
